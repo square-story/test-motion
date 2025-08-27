@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
+import Image from "next/image";
+import GithubButtonContainer from "@/components/github-button/default";
 
 export default function Home() {
   const GRID_SIZE = 10;
@@ -64,15 +66,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
-      {/* Control Buttons */}
       <div className="absolute top-2 right-2 z-10 sm:top-4 sm:right-4">
-        <Button
-          onClick={() => window.location.reload()}
-          size="sm"
-          className="text-xs sm:text-sm"
-        >
+        <GithubButtonContainer repoUrl="https://github.com/square-story/test-motion" />
+      </div>
+      <div className="absolute top-15 right-2 z-10 sm:top-15 sm:right-4">
+        <Button>
           <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-          Reset
+          Reset Origin
         </Button>
       </div>
 
@@ -130,10 +130,12 @@ export default function Home() {
                       ease: "easeInOut"
                     }}
                   >
-                    <img
-                      src={getAvatarUrl(idx, 50)}
+                    <Image
+                      src={getAvatarUrl(idx, 10)}
                       alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
                       className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
+                      width={10}
+                      height={10}
                     />
                   </motion.div>
 

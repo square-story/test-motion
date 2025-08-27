@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
-import Toggle from "@/components/ui/toggle";
 
 export default function Home() {
   const GRID_SIZE = 10;
@@ -64,90 +63,116 @@ export default function Home() {
   };
 
   return (
-    <div className="flex justify-center min-h-screen items-center p-8 relative">
-      <div className="grid grid-cols-10 w-full max-w-[50vw] aspect-square gap-2 lg:gap-3">
-        {[...Array(GRID_SIZE ** 2)].map((_, idx) => {
-          const row = Math.floor(idx / GRID_SIZE);
-          const col = idx % GRID_SIZE;
-          const isOrigin = (row === origin[0]) && (col === origin[1]);
-          const delay = getDistance(row, col) * BASE_DELAY + Math.random() * NOISE_DELAY;
-
-          return (
-            <motion.div
-              className="rounded-sm cursor-pointer overflow-hidden relative group"
-              key={idx}
-              style={{
-                backgroundColor: getCellColor(idx, isOrigin)
-              }}
-              initial={{ opacity: isOrigin ? 1 : 0, scale: isOrigin ? 1 : 0.3 }}
-              animate={{ opacity: 0.8, scale: 1 }}
-              transition={{ type: 'spring', bounce: 0.5, delay: delay }}
-              whileHover={{
-                scale: 1.1,
-                opacity: 1,
-                transition: { duration: 0.2 }
-              }}
-              onMouseEnter={(e) => {
-                setHoveredCell(idx);
-                handleMouseMove(e);
-              }}
-              onMouseLeave={() => setHoveredCell(null)}
-              onMouseMove={handleMouseMove}
-            >
-              {/* Avatar image with animation */}
-              <motion.div
-                className="absolute inset-0 p-1"
-                initial={{ rotate: 0 }}
-                animate={{
-                  rotate: isOrigin ? [0, 5, -5, 0] : 0,
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: isOrigin ? Infinity : 0,
-                  ease: "easeInOut"
-                }}
-              >
-                <img
-                  src={getAvatarUrl(idx, 50)}
-                  alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
-                  className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
-                />
-              </motion.div>
-
-              {/* Overlay for origin cell */}
-              {isOrigin && (
-                <motion.div
-                  className="absolute inset-0 border-2 border-yellow-400 rounded-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                />
-              )}
-            </motion.div>
-          );
-        })}
+    <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
+      {/* Control Buttons */}
+      <div className="absolute top-2 right-2 z-10 sm:top-4 sm:right-4">
+        <Button
+          onClick={() => window.location.reload()}
+          size="sm"
+          className="text-xs sm:text-sm"
+        >
+          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+          Reset
+        </Button>
       </div>
 
-      {/* Hover Popup */}
+      {/* Main Grid Container */}
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8">
+        <div className="w-full h-full max-w-[100vw] max-h-[100vh] flex items-center justify-center">
+          {/* Responsive Grid Wrapper */}
+          <div
+            className="grid grid-cols-10 gap-0.5 sm:gap-1 md:gap-2 lg:gap-3"
+            style={{
+              width: 'min(95vw, 95vh, 800px)',
+              height: 'min(95vw, 95vh, 800px)',
+              aspectRatio: '1 / 1'
+            }}
+          >
+            {[...Array(GRID_SIZE ** 2)].map((_, idx) => {
+              const row = Math.floor(idx / GRID_SIZE);
+              const col = idx % GRID_SIZE;
+              const isOrigin = (row === origin[0]) && (col === origin[1]);
+              const delay = getDistance(row, col) * BASE_DELAY + Math.random() * NOISE_DELAY;
+
+              return (
+                <motion.div
+                  className="rounded-sm cursor-pointer overflow-hidden relative group w-full h-full"
+                  key={idx}
+                  style={{
+                    backgroundColor: getCellColor(idx, isOrigin),
+                    aspectRatio: '1 / 1'
+                  }}
+                  initial={{ opacity: isOrigin ? 1 : 0, scale: isOrigin ? 1 : 0.3 }}
+                  animate={{ opacity: 0.8, scale: 1 }}
+                  transition={{ type: 'spring', bounce: 0.5, delay: delay }}
+                  whileHover={{
+                    scale: 1.05,
+                    opacity: 1,
+                    transition: { duration: 0.2 }
+                  }}
+                  onMouseEnter={(e) => {
+                    setHoveredCell(idx);
+                    handleMouseMove(e);
+                  }}
+                  onMouseLeave={() => setHoveredCell(null)}
+                  onMouseMove={handleMouseMove}
+                >
+                  {/* Avatar image with animation */}
+                  <motion.div
+                    className="absolute inset-0 p-0.5 sm:p-1"
+                    initial={{ rotate: 0 }}
+                    animate={{
+                      rotate: isOrigin ? [0, 5, -5, 0] : 0,
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: isOrigin ? Infinity : 0,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <img
+                      src={getAvatarUrl(idx, 50)}
+                      alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
+                      className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
+                    />
+                  </motion.div>
+
+                  {/* Overlay for origin cell */}
+                  {isOrigin && (
+                    <motion.div
+                      className="absolute inset-0 border border-yellow-400 sm:border-2 rounded-sm"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Hover Popup - Only show on larger screens */}
       <AnimatePresence>
         {hoveredCell !== null && (
           <motion.div
-            className="fixed pointer-events-none z-50 rounded-lg shadow-2xl border overflow-hidden"
+            className="fixed pointer-events-none z-50 rounded-lg shadow-2xl border overflow-hidden hidden sm:block"
             style={{
-              left: mousePosition.x + 15,
-              top: mousePosition.y - 100,
+              left: Math.min(mousePosition.x + 15, window.innerWidth - 320),
+              top: Math.max(mousePosition.y - 100, 10),
             }}
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             transition={{ duration: 0.15 }}
           >
-            <div className="w-80 h-70">
-              <div className="relative h-48 flex items-center justify-center">
+            <div className="w-80 bg-white dark:bg-gray-800">
+              <div className="relative h-48 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600">
                 <motion.img
                   src={getAvatarUrl(hoveredCell, 200)}
                   alt={`Avatar ${avatarSeeds[hoveredCell % avatarSeeds.length]}`}
-                  className="h-48 w-48 object-contain"
+                  className="h-32 w-32 sm:h-40 sm:w-40 object-contain"
                   initial={{ scale: 0.8, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ duration: 0.3, ease: "backOut" }}
@@ -159,11 +184,11 @@ export default function Home() {
                   transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
                 />
               </div>
-              <div className="p-4 bg-background">
-                <h3 className="text-lg font-semibold">
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {avatarSeeds[hoveredCell % avatarSeeds.length]}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   This is a randomly generated avatar using DiceBear API.
                 </p>
               </div>
@@ -171,15 +196,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Control Buttons */}
-      <div className="absolute top-4 right-4 flex gap-2">
-        <Button
-          onClick={() => window.location.reload()}>
-          <RotateCcw />
-          Reset
-        </Button>
-      </div>
     </div>
   );
 }

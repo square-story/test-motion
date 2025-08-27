@@ -70,9 +70,8 @@ export default function Home() {
         <GithubButtonContainer repoUrl="https://github.com/square-story/test-motion" />
       </div>
       <div className="absolute top-15 right-2 z-10 sm:top-15 sm:right-4">
-        <Button>
-          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-          Reset Origin
+        <Button onClick={() => window.location.reload()}>
+          <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
         </Button>
       </div>
 

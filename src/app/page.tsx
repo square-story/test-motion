@@ -7,7 +7,7 @@ import Image from "next/image";
 import GithubButtonContainer from "@/components/github-button/default";
 
 export default function Home() {
-  const GRID_SIZE = 10;
+  const GRID_SIZE = 6;
   const BASE_DELAY = 0.5;
   const NOISE_DELAY = 0.05;
 
@@ -80,7 +80,7 @@ export default function Home() {
         <div className="w-full h-full max-w-[100vw] max-h-[100vh] flex items-center justify-center">
           {/* Responsive Grid Wrapper */}
           <div
-            className="grid grid-cols-10 gap-0.5 sm:gap-1 md:gap-2 lg:gap-3"
+            className="grid grid-cols-6 gap-0.5 sm:gap-1 md:gap-2 lg:gap-3"
             style={{
               width: 'min(95vw, 95vh, 800px)',
               height: 'min(95vw, 95vh, 800px)',
@@ -130,7 +130,7 @@ export default function Home() {
                     }}
                   >
                     <Image
-                      src={getAvatarUrl(idx, 10)}
+                      src={getAvatarUrl(idx, 2)}
                       alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
                       className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
                       width={10}

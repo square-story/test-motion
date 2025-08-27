@@ -1,6 +1,9 @@
 "use client"
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { RotateCcw } from "lucide-react";
+import Toggle from "@/components/ui/toggle";
 
 export default function Home() {
   const GRID_SIZE = 10;
@@ -18,9 +21,7 @@ export default function Home() {
 
   // Available DiceBear styles for variety
   const avatarStyles = [
-    "notionists", "avataaars", "big-smile", "bottts", "fun-emoji",
-    "icons", "identicon", "initials", "lorelei", "micah", "miniavs",
-    "open-peeps", "personas", "pixel-art", "shapes", "thumbs"
+    "notionists"
   ];
 
   const getRandomCoordinate = (): [number, number] => [
@@ -73,7 +74,7 @@ export default function Home() {
 
           return (
             <motion.div
-              className="bg-neutral-500 rounded-sm cursor-pointer overflow-hidden relative group"
+              className="rounded-sm cursor-pointer overflow-hidden relative group"
               key={idx}
               style={{
                 backgroundColor: getCellColor(idx, isOrigin)
@@ -107,7 +108,7 @@ export default function Home() {
                 }}
               >
                 <img
-                  src={getAvatarUrl(idx, 80)}
+                  src={getAvatarUrl(idx, 50)}
                   alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
                   className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
                 />
@@ -131,7 +132,7 @@ export default function Home() {
       <AnimatePresence>
         {hoveredCell !== null && (
           <motion.div
-            className="fixed pointer-events-none z-50 bg-white rounded-lg shadow-2xl border overflow-hidden"
+            className="fixed pointer-events-none z-50 rounded-lg shadow-2xl border overflow-hidden"
             style={{
               left: mousePosition.x + 15,
               top: mousePosition.y - 100,
@@ -141,12 +142,12 @@ export default function Home() {
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             transition={{ duration: 0.15 }}
           >
-            <div className="w-80 h-64">
-              <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+            <div className="w-80 h-70">
+              <div className="relative h-48 flex items-center justify-center">
                 <motion.img
                   src={getAvatarUrl(hoveredCell, 200)}
                   alt={`Avatar ${avatarSeeds[hoveredCell % avatarSeeds.length]}`}
-                  className="w-32 h-32 object-contain"
+                  className="h-48 w-48 object-contain"
                   initial={{ scale: 0.8, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ duration: 0.3, ease: "backOut" }}
@@ -158,15 +159,12 @@ export default function Home() {
                   transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
                 />
               </div>
-              <div className="p-4 bg-white">
-                <h3 className="font-bold text-lg text-gray-800">
+              <div className="p-4 bg-background">
+                <h3 className="text-lg font-semibold">
                   {avatarSeeds[hoveredCell % avatarSeeds.length]}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Style: {avatarStyles[Math.floor(hoveredCell / avatarSeeds.length) % avatarStyles.length]}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Position: Row {Math.floor(hoveredCell / GRID_SIZE)}, Col {hoveredCell % GRID_SIZE}
+                <p className="text-sm text-muted-foreground">
+                  This is a randomly generated avatar using DiceBear API.
                 </p>
               </div>
             </div>
@@ -174,20 +172,13 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Control buttons */}
+      {/* Control Buttons */}
       <div className="absolute top-4 right-4 flex gap-2">
-        <button
-          onClick={() => setOrigin(getRandomCoordinate())}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
-        >
-          Reset Animation
-        </button>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
-        >
-          New Avatars
-        </button>
+        <Button
+          onClick={() => window.location.reload()}>
+          <RotateCcw />
+          Reset
+        </Button>
       </div>
     </div>
   );

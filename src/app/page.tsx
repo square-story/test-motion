@@ -1,45 +1,193 @@
 "use client"
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react"
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const GRID_SIZE = 10;
   const BASE_DELAY = 0.5;
   const NOISE_DELAY = 0.05;
-  const getRandomCoodinate = (): [number, number] => [
+
+  // Generate unique avatar seeds for variety
+  const avatarSeeds = [
+    "Felix", "Emma", "Alex", "Sarah", "Mike", "Luna", "Jack", "Zoe", "Sam", "Maya",
+    "Leo", "Aria", "Max", "Ivy", "Ben", "Nova", "Kai", "Ruby", "Eli", "Sage",
+    "Rio", "Wren", "Ace", "Faye", "Jax", "Iris", "Rex", "Cleo", "Zep", "Vale",
+    "Fox", "Rose", "Neo", "Jade", "Axe", "Skye", "Rio", "Dawn", "Ash", "Star",
+    "Ray", "Hope", "Jay", "Blue", "Zed", "Moon", "Oak", "Joy", "Fox", "Glow"
+  ];
+
+  // Available DiceBear styles for variety
+  const avatarStyles = [
+    "notionists", "avataaars", "big-smile", "bottts", "fun-emoji",
+    "icons", "identicon", "initials", "lorelei", "micah", "miniavs",
+    "open-peeps", "personas", "pixel-art", "shapes", "thumbs"
+  ];
+
+  const getRandomCoordinate = (): [number, number] => [
     Math.floor(Math.random() * GRID_SIZE),
     Math.floor(Math.random() * GRID_SIZE)
-  ]
-  const [orgin, setOrgin] = useState<[number, number] | undefined>()
+  ];
+
+  const [origin, setOrigin] = useState<[number, number] | undefined>();
+  const [hoveredCell, setHoveredCell] = useState<number | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
-    setOrgin(getRandomCoodinate())
-  }, [])
-  if (!orgin) return null
+    setOrigin(getRandomCoordinate());
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePosition({ x: e.clientX, y: e.clientY });
+  };
+
+  if (!origin) return null;
+
   const getDistance = (row: number, col: number) => {
     return (
-      Math.sqrt((row - orgin[0]) ** 2 + (col - orgin[1]) ** 2) / (10 * Math.sqrt(2))
-    )
-  }
+      Math.sqrt((row - origin[0]) ** 2 + (col - origin[1]) ** 2) / (10 * Math.sqrt(2))
+    );
+  };
+
+  const getAvatarUrl = (idx: number, size: number = 100) => {
+    const seed = avatarSeeds[idx % avatarSeeds.length];
+    const style = avatarStyles[Math.floor(idx / avatarSeeds.length) % avatarStyles.length];
+    return `https://api.dicebear.com/9.x/${style}/svg?seed=${seed}&size=${size}`;
+  };
+
+  const getCellColor = (idx: number, isOrigin: boolean) => {
+    if (isOrigin) return "orange";
+
+    // Different colors based on position for variety
+    const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+    return colors[idx % colors.length];
+  };
+
   return (
-    <div className="flex justify-center min-h-screen items-center p-8">
+    <div className="flex justify-center min-h-screen items-center p-8 relative">
       <div className="grid grid-cols-10 w-full max-w-[50vw] aspect-square gap-2 lg:gap-3">
         {[...Array(GRID_SIZE ** 2)].map((_, idx) => {
-          const row = Math.floor(idx / GRID_SIZE)
-          const col = idx % GRID_SIZE
-          const isOrgin = (row === orgin[0]) && (col === orgin[1])
-          const delay = getDistance(row, col) * BASE_DELAY + Math.random() * NOISE_DELAY
+          const row = Math.floor(idx / GRID_SIZE);
+          const col = idx % GRID_SIZE;
+          const isOrigin = (row === origin[0]) && (col === origin[1]);
+          const delay = getDistance(row, col) * BASE_DELAY + Math.random() * NOISE_DELAY;
+
           return (
-            < motion.div
-              className="bg-neutral-500 rounded-sm"
+            <motion.div
+              className="bg-neutral-500 rounded-sm cursor-pointer overflow-hidden relative group"
               key={idx}
-              style={{ backgroundColor: isOrgin ? "orange" : "" }}
-              initial={{ opacity: isOrgin ? 1 : 0, scale: isOrgin ? 1 : 0.3 }}
+              style={{
+                backgroundColor: getCellColor(idx, isOrigin)
+              }}
+              initial={{ opacity: isOrigin ? 1 : 0, scale: isOrigin ? 1 : 0.3 }}
               animate={{ opacity: 0.8, scale: 1 }}
               transition={{ type: 'spring', bounce: 0.5, delay: delay }}
-            />
-          )
+              whileHover={{
+                scale: 1.1,
+                opacity: 1,
+                transition: { duration: 0.2 }
+              }}
+              onMouseEnter={(e) => {
+                setHoveredCell(idx);
+                handleMouseMove(e);
+              }}
+              onMouseLeave={() => setHoveredCell(null)}
+              onMouseMove={handleMouseMove}
+            >
+              {/* Avatar image with animation */}
+              <motion.div
+                className="absolute inset-0 p-1"
+                initial={{ rotate: 0 }}
+                animate={{
+                  rotate: isOrigin ? [0, 5, -5, 0] : 0,
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: isOrigin ? Infinity : 0,
+                  ease: "easeInOut"
+                }}
+              >
+                <img
+                  src={getAvatarUrl(idx, 80)}
+                  alt={`Avatar ${avatarSeeds[idx % avatarSeeds.length]}`}
+                  className="w-full h-full object-contain rounded-sm transition-all duration-300 group-hover:scale-110"
+                />
+              </motion.div>
+
+              {/* Overlay for origin cell */}
+              {isOrigin && (
+                <motion.div
+                  className="absolute inset-0 border-2 border-yellow-400 rounded-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+              )}
+            </motion.div>
+          );
         })}
+      </div>
+
+      {/* Hover Popup */}
+      <AnimatePresence>
+        {hoveredCell !== null && (
+          <motion.div
+            className="fixed pointer-events-none z-50 bg-white rounded-lg shadow-2xl border overflow-hidden"
+            style={{
+              left: mousePosition.x + 15,
+              top: mousePosition.y - 100,
+            }}
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            transition={{ duration: 0.15 }}
+          >
+            <div className="w-80 h-64">
+              <div className="relative h-48 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+                <motion.img
+                  src={getAvatarUrl(hoveredCell, 200)}
+                  alt={`Avatar ${avatarSeeds[hoveredCell % avatarSeeds.length]}`}
+                  className="w-32 h-32 object-contain"
+                  initial={{ scale: 0.8, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.3, ease: "backOut" }}
+                />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+                />
+              </div>
+              <div className="p-4 bg-white">
+                <h3 className="font-bold text-lg text-gray-800">
+                  {avatarSeeds[hoveredCell % avatarSeeds.length]}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Style: {avatarStyles[Math.floor(hoveredCell / avatarSeeds.length) % avatarStyles.length]}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Position: Row {Math.floor(hoveredCell / GRID_SIZE)}, Col {hoveredCell % GRID_SIZE}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Control buttons */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        <button
+          onClick={() => setOrigin(getRandomCoordinate())}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+        >
+          Reset Animation
+        </button>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+        >
+          New Avatars
+        </button>
       </div>
     </div>
   );
